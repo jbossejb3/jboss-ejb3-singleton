@@ -339,7 +339,7 @@ public class SingletonBeanJNDIBinderDeployer extends AbstractRealDeployerWithInp
          allLocalinterfaces.add(businessLocalIntf);
 
          InvocationHandler invocationHandler = new SingletonBeanLocalInvocationHandler(containerRegistryKey,
-               businessLocal, clientInterceptors);
+               containerGUID, businessLocal, clientInterceptors);
 
          // time to create a proxy
          Object proxy = proxyFactory.createProxy(new Class<?>[]

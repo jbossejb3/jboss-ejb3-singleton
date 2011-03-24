@@ -56,11 +56,11 @@ public class SingletonBeanLocalInvocationHandler extends SessionLocalProxyInvoca
     * 
     * @param containerRegistryName The name by which the container is registered
     * @param containerGUID The globally unique id of the container
-    * @param businessInterface The business interface on which the invocation is being made
+    * @param businessInterfaceType The business interface on which the invocation is being made
     */
    public SingletonBeanLocalInvocationHandler(String containerRegistryName, String containerGUID, String businessInterfaceType)
    {
-      super(containerRegistryName, containerGUID, null, businessInterfaceType);
+      super(containerRegistryName, containerGUID, null, businessInterfaceType, null);
    }
    
    
@@ -83,13 +83,13 @@ public class SingletonBeanLocalInvocationHandler extends SessionLocalProxyInvoca
     * 
     * @param containerRegistryName The name by which the container is registered
     * @param containerGUID The globally unique id of the container
-    * @param businessInterface The business interface on which the invocation is being made
-    * @param clientInterceptors The client side AOP interceptors that will be used when this 
+    * @param businessInterfaceType The business interface on which the invocation is being made
+    * @param interceptors The client side AOP interceptors that will be used when this
     *                           {@link SingletonBeanLocalInvocationHandler} is invoked. This can be null
     */
    public SingletonBeanLocalInvocationHandler(String containerRegistryName, String containerGUID, String businessInterfaceType, Interceptor[] interceptors)
    {
-      super(containerRegistryName, containerGUID, interceptors, businessInterfaceType);
+      super(containerRegistryName, containerGUID, interceptors, businessInterfaceType, null);
    }
 
    

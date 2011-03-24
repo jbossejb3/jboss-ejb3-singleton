@@ -59,7 +59,7 @@ public class SingletonBeanRemoteInvocationHandler extends SessionRemoteProxyInvo
     * @param containerRegistryName The name by which the container is registered
     * @param locatorURL The remoting invoker locator URL to be used to interact with the remote container
     * @param interceptors The client side interceptors to be used when an invocation is being handled
-    * @param businessInterface The business interface corresponding to the proxy on which the invocation is being made
+    * @param businessInterfaceType The business interface corresponding to the proxy on which the invocation is being made
     */
    public SingletonBeanRemoteInvocationHandler(String containerRegistryName, String containerGUID, String locatorURL,
          Interceptor[] interceptors, String businessInterfaceType)
