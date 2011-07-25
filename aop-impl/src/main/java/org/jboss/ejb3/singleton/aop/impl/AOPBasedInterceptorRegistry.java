@@ -102,7 +102,8 @@ public class AOPBasedInterceptorRegistry implements InterceptorRegistry
       invocation.setArguments(containerInvocation.getArgs());
       // set the target bean context of the AOP invocation
       invocation.setBeanContext((org.jboss.ejb3.interceptors.container.BeanContext<?>) targetBeanContext);
-
+      // set the AOP metadata
+      invocation.setMetaData(aopInvocationContext.getMetadata());
       
          // fire the AOP invocation
          try

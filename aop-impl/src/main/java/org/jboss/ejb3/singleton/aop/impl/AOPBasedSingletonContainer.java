@@ -426,7 +426,9 @@ public class AOPBasedSingletonContainer extends SessionSpecContainer implements 
             assert objInvokedMethod instanceof SerializableMethod : "Invoked Method set on invocation metadata is not of type "
                   + SerializableMethod.class.getName() + ", instead: " + objInvokedMethod;
             SerializableMethod invokedMethod = (SerializableMethod) objInvokedMethod;
-   
+
+            // set the AOP metadata
+            containerInvocation.setMetaData(methodInvocation.getMetaData());
    
             // pass the control to the simple singleton container
             Object result = this.delegate.invoke(containerInvocation);

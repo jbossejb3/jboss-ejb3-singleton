@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.advice.Interceptor;
+import org.jboss.aop.metadata.SimpleMetaData;
 import org.jboss.ejb3.container.spi.ContainerInvocation;
 
 /**
@@ -66,6 +67,8 @@ public class AOPBasedContainerInvocation implements ContainerInvocation
     * the response
     */
    private Map<Object, Object> responseContextInfo = new HashMap<Object, Object>();
+
+   private SimpleMetaData metadata;
 
    /**
     * Creates a {@link AOPBasedContainerInvocation}
@@ -185,5 +188,13 @@ public class AOPBasedContainerInvocation implements ContainerInvocation
          return this.aopMethodInfo.getInterceptors();
       }
       return this.overridenAOPInterceptors;
+   }
+
+   public void setMetaData(SimpleMetaData metaData) {
+      this.metadata = metaData;
+   }
+
+   public SimpleMetaData getMetadata() {
+      return this.metadata;
    }
 }
