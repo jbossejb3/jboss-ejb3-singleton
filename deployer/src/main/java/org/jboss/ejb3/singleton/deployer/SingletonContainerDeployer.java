@@ -23,12 +23,14 @@ package org.jboss.ejb3.singleton.deployer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 import org.jboss.aop.AspectManager;
+import org.jboss.aop.Deployment;
 import org.jboss.aop.Domain;
 import org.jboss.aop.DomainDefinition;
 import org.jboss.beans.metadata.api.annotations.Inject;
@@ -721,7 +723,19 @@ public class SingletonContainerDeployer extends AbstractRealDeployerWithInput<JB
       }
       // add dependency on INSTALLED state (i.e. fully populated and invokable ENC) SwitchBoard 
       builder.addDemand(switchBoard.getId(), ControllerState.CREATE, ControllerState.INSTALLED, null);
-      
+
+      // EJBTHREE-2227 https://issues.jboss.org/browse/EJBTHREE-2227 add dependency on INSTALLED state
+      // (i.e. fully populated and invokable ENC) of ALL other Barriers in the DU hierarchy to avoid instantiating
+      // the @Startup @Singleton too early
+      final Set<String> barriers = this.getBarrierIdsFromAllDeploymentUnitsInHierarchy(unit);
+      for (String barrier : barriers) {
+         if (barrier == null) {
+            continue;
+         }
+         // add dependency on INSTALLED state (i.e. fully populated and invokable ENC) of Barrier
+         builder.addDemand(barrier, ControllerState.CREATE, ControllerState.INSTALLED, null);
+      }
+
       if (unit.isComponent())
       {
          // Attach it to parent since we are processing a component DU and BeanMetaDataDeployer doesn't
@@ -766,4 +780,51 @@ public class SingletonContainerDeployer extends AbstractRealDeployerWithInput<JB
       return sb.toString();
    }
 
+   private Set<String> getBarrierIdsFromAllDeploymentUnitsInHierarchy(final DeploymentUnit deploymentUnit) {
+      final Set<String> barriers = new HashSet<String>();
+      // get the top level DU in the hierarchy of the DU
+      final DeploymentUnit topLevelDU = deploymentUnit.getTopLevel();
+      final List<DeploymentUnit> allDUs = new ArrayList<DeploymentUnit>();
+      allDUs.add(topLevelDU);
+      // now fetch all the child DUs recursively from the top level DU
+      allDUs.addAll(this.getChildrenRecursively(topLevelDU));
+      // find any Barrier in each of the DU
+      for (DeploymentUnit du : allDUs) {
+         final Barrier barrier = du.getAttachment(Barrier.class);
+         if (barrier != null) {
+            barriers.add(barrier.getId());
+         }
+      }
+      return barriers;
+   }
+
+   private List<DeploymentUnit> getChildrenRecursively(final DeploymentUnit deploymentUnit) {
+      List<DeploymentUnit> allChildren = new ArrayList<DeploymentUnit>();
+      List<DeploymentUnit> children = deploymentUnit.getChildren();
+      if (children != null && !children.isEmpty()) {
+
+         allChildren.addAll(children);
+         // find child DU of each child
+         for (DeploymentUnit child : children) {
+            if (child == null) {
+               continue;
+            }
+            allChildren.addAll(this.getChildrenRecursively(child));
+         }
+      }
+      // check component DUs too
+      final List<DeploymentUnit> componentDUs = deploymentUnit.getComponents();
+      if (componentDUs != null && !componentDUs.isEmpty()) {
+
+         allChildren.addAll(componentDUs);
+         // find child DU of each component DU
+         for (DeploymentUnit componentDU : componentDUs) {
+            if (componentDU == null) {
+               continue;
+            }
+            allChildren.addAll(this.getChildrenRecursively(componentDU));
+         }
+      }
+      return allChildren;
+   }
 }
